@@ -128,7 +128,7 @@ if __name__ == "__main__":
                     if avg_val_loss < best_val_loss:
                         # Save the best model out of current million interval
                         best_val_loss = avg_val_loss
-                        save_checkpoint(model, optimizer, t + 1, global_step, best_checkpoint_path)  # todo fix
+                        save_checkpoint(model, optimizer, t + 1, global_step, best_checkpoint_path)
                         log_file.write(f"Updated best model for interval {t+1}, w/ news avg val loss={best_val_loss}\n")
                         log_file.flush()
 
