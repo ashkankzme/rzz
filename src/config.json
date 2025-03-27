@@ -10,5 +10,14 @@
     "num_heads": [2, 4, 8],
     "num_layers": [2, 3, 4],
     "dropout": [0.1, 0.2, 0.3]
+  },
+  "best_hparams": {
+        "num_epochs": 1,
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "d_model": 64,
+        "num_heads": 4,
+        "num_layers": 2,
+        "dropout": 0.1
   }
 }
