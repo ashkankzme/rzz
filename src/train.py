@@ -1,5 +1,6 @@
 import os
 import json
+import random
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,6 +9,18 @@ from tqdm import tqdm
 from data_utils import get_train_val_datasets, CONTEXT_SIZE
 from transformer import DecoderOnlyTransformer
 import numpy as np
+
+
+def set_seed(seed=72):
+    random.seed(seed)  # Python's built-in random module
+    np.random.seed(seed)  # NumPy
+    torch.manual_seed(seed)  # PyTorch CPU
+    torch.cuda.manual_seed(seed)  # PyTorch GPU (single GPU)
+    torch.cuda.manual_seed_all(seed)  # PyTorch GPU (all GPUs)
+
+    # Ensures deterministic behavior in cuDNN
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def save_checkpoint(_model, _optimizer, interval, step, checkpoint_path):
@@ -27,6 +40,9 @@ def xavier_model_param_initialization(_model):
 
 
 if __name__ == "__main__":
+    # set random seed to ensure repeatability of results
+    set_seed()
+
     # Load config and best hyperparameters
     with open("config.json") as f:
         config = json.load(f)
@@ -41,7 +57,8 @@ if __name__ == "__main__":
         "d_model": 64,
         "num_heads": 4,
         "num_layers": 2,
-        "dropout": 0.1
+        "dropout": 0.1,
+        "weight_decay": 1e-2,
     })
     best_hparams["d_ff"] = best_hparams["d_model"] * 4
 
@@ -59,7 +76,8 @@ if __name__ == "__main__":
                                    best_hparams["dropout"]).to(device)
 
     xavier_model_param_initialization(model)
-    optimizer = optim.Adam(model.parameters(), lr=best_hparams["learning_rate"])
+    # For later: Try different weight_decay values: 1e-5, 5e-4, 1e-3, 1e-2.
+    optimizer = optim.AdamW(model.parameters(), lr=best_hparams["learning_rate"], weight_decay=best_hparams["weight_decay"])
     criterion = torch.nn.CrossEntropyLoss()
 
     # State for resuming training
